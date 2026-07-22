@@ -19,10 +19,19 @@
     return;
   }
   var io = new IntersectionObserver(function (entries) {
+    // kaskada: gdy naraz wchodzi kilka bloków, wskakują jeden po drugim (oko podąża za ruchem)
+    var i = 0;
     entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      if (e.isIntersecting) {
+        var el = e.target;
+        el.style.transitionDelay = Math.min(i * 90, 360) + 'ms';
+        el.classList.add('in');
+        io.unobserve(el);
+        setTimeout(function () { el.style.transitionDelay = ''; }, 1400);
+        i++;
+      }
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.01, rootMargin: '0px 0px -48px 0px' });
   els.forEach(function (el) { io.observe(el); });
   // od razu pokaż to, co jest w pierwszym ekranie (hero/intro) — nie czekaj na próg observera.
   // (hero bywa WYŻSZE niż viewport i nigdy nie osiąga 12% swojej powierzchni → zostawało puste do scrolla)
